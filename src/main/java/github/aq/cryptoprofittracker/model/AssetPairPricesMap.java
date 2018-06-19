@@ -1,4 +1,4 @@
-package github.aq.cryptoinvestmentwatcher.model;
+package github.aq.cryptoprofittracker.model;
 
 import java.util.HashMap;
 import java.util.Map;

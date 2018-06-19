@@ -1,4 +1,4 @@
-package github.aq.cryptoinvestmentwatcher.model;
+package github.aq.cryptoprofittracker.model;
 
 public enum AssetPair {
 	BTCUSD, 
@@ -11,5 +11,5 @@ public enum AssetPair {
 	NEOBTC,
 	ONTBTC,
 	XVGBTC,
-	TRXBTC;
+	TRXBTC, BCHUSD;
 }

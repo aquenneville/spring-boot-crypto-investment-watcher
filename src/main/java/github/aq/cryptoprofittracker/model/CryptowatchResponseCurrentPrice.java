@@ -1,4 +1,4 @@
-package github.aq.cryptoinvestmentwatcher.model;
+package github.aq.cryptoprofittracker.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

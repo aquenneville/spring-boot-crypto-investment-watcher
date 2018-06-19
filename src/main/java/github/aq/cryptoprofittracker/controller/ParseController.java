@@ -1,4 +1,4 @@
-package github.aq.cryptoinvestmentwatcher.controller;
+package github.aq.cryptoprofittracker.controller;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -25,16 +25,16 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import github.aq.cryptoinvestmentwatcher.model.AssetPair;
-import github.aq.cryptoinvestmentwatcher.model.AssetPairPricesMap;
-import github.aq.cryptoinvestmentwatcher.model.CryptowatchResponseCurrentPrice;
-import github.aq.cryptoinvestmentwatcher.model.Transaction;
-import github.aq.cryptoinvestmentwatcher.model.Transaction.Currency;
-import github.aq.cryptoinvestmentwatcher.model.Transactions;
-import github.aq.cryptoinvestmentwatcher.model.Website;
-import github.aq.cryptoinvestmentwatcher.parse.parser.BinanceTransactionsCsvParser;
-import github.aq.cryptoinvestmentwatcher.parse.parser.BitstampTransactionsCsvParser;
-import github.aq.cryptoinvestmentwatcher.parse.parser.KrakenTransactionsCsvParser;
+import github.aq.cryptoprofittracker.model.AssetPair;
+import github.aq.cryptoprofittracker.model.AssetPairPricesMap;
+import github.aq.cryptoprofittracker.model.CryptowatchResponseCurrentPrice;
+import github.aq.cryptoprofittracker.model.Transaction;
+import github.aq.cryptoprofittracker.model.Transactions;
+import github.aq.cryptoprofittracker.model.Website;
+import github.aq.cryptoprofittracker.model.Transaction.Currency;
+import github.aq.cryptoprofittracker.parse.parser.BinanceTransactionsCsvParser;
+import github.aq.cryptoprofittracker.parse.parser.BitstampTransactionsCsvParser;
+import github.aq.cryptoprofittracker.parse.parser.KrakenTransactionsCsvParser;
 
 @RestController
 @RequestMapping("/api/v1/transactions")
@@ -57,23 +57,24 @@ public class ParseController {
 	@RequestMapping(path = "/parse", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody String parseAll() throws Exception{		
 		long start = System.currentTimeMillis();		
-		List<Transaction> list = parseTransactionsInFolder("storage/transactions/bitstamp-account-transactions.csv", Website.BITSTAMP);
+		List<Transaction> list = parseTransactionsInFolder("storage/transactions/bitstamp/bitstamp-account-transactions.csv", Website.BITSTAMP);
+
 		
 		CryptowatchResponseCurrentPrice bitstampBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Website.BITSTAMP, AssetPair.BTCUSD);
 		CryptowatchResponseCurrentPrice bitstampBchBtcResp = callCryptowatchAssetPairCurrentPrice(Website.BITSTAMP, AssetPair.BCHBTC);
 		CryptowatchResponseCurrentPrice krakenBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.BTCUSD);
-		CryptowatchResponseCurrentPrice binanceBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Website.BINANCE, AssetPair.BTCUSD);
-		CryptowatchResponseCurrentPrice krakenEthUsdResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.ETHUSD);
-		CryptowatchResponseCurrentPrice krakenLtcBtcResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.LTCBTC);
-		CryptowatchResponseCurrentPrice krakenXrpUsdResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.XRPUSD);
+		//CryptowatchResponseCurrentPrice binanceBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Website.BINANCE, AssetPair.BTCUSD);
+		//CryptowatchResponseCurrentPrice krakenEthUsdResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.ETHUSD);
+		//CryptowatchResponseCurrentPrice krakenLtcBtcResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.LTCBTC);
+		//CryptowatchResponseCurrentPrice krakenXrpUsdResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.XRPUSD);
 		
 		AssetPairPricesMap.addAssetPairPrice(AssetPair.BTCUSD, Website.BITSTAMP, bitstampBtcUsdResp.getResult().getPrice());
-		AssetPairPricesMap.addAssetPairPrice(AssetPair.BTCUSD, Website.BITSTAMP, bitstampBchBtcResp.getResult().getPrice());
-		AssetPairPricesMap.addAssetPairPrice(AssetPair.BTCUSD, Website.KRAKEN, krakenBtcUsdResp.getResult().getPrice());
-		AssetPairPricesMap.addAssetPairPrice(AssetPair.BTCUSD, Website.BINANCE, binanceBtcUsdResp.getResult().getPrice());
-		AssetPairPricesMap.addAssetPairPrice(AssetPair.ETHUSD, Website.KRAKEN, krakenEthUsdResp.getResult().getPrice());
-		AssetPairPricesMap.addAssetPairPrice(AssetPair.LTCBTC, Website.KRAKEN, krakenLtcBtcResp.getResult().getPrice());
-		AssetPairPricesMap.addAssetPairPrice(AssetPair.XRPUSD, Website.KRAKEN, krakenXrpUsdResp.getResult().getPrice());
+		//AssetPairPricesMap.addAssetPairPrice(AssetPair.BCHUSD, Website.BITSTAMP, bitstampBchBtcResp.getResult().getPrice());
+		//AssetPairPricesMap.addAssetPairPrice(AssetPair.BTCUSD, Website.KRAKEN, krakenBtcUsdResp.getResult().getPrice());
+		//AssetPairPricesMap.addAssetPairPrice(AssetPair.BTCUSD, Website.BINANCE, binanceBtcUsdResp.getResult().getPrice());
+		//AssetPairPricesMap.addAssetPairPrice(AssetPair.ETHUSD, Website.KRAKEN, krakenEthUsdResp.getResult().getPrice());
+		//AssetPairPricesMap.addAssetPairPrice(AssetPair.LTCBTC, Website.KRAKEN, krakenLtcBtcResp.getResult().getPrice());
+		//AssetPairPricesMap.addAssetPairPrice(AssetPair.XRPUSD, Website.KRAKEN, krakenXrpUsdResp.getResult().getPrice());
 //		String uri =
 //			    "https://api.cryptowat.ch/markets/bitstamp/btcusd/price";
 //		URL url = new URL(uri);
@@ -152,7 +153,7 @@ public class ParseController {
 		
 		Map<String, Double> map = new HashMap<String, Double>();
 		double btcQty = 0;
-		double depositSum = 0;
+		//double depositSum = 0;
 		// filter out period: 2016-2017
 		// filter out assets: btc, eth
 		double fees = 0;
@@ -163,23 +164,23 @@ public class ParseController {
 		
 		
 		Predicate<Transaction> predicateTaxYear = null;
-		if (paramTaxYear != null && paramTaxYear > 0) {
-			LocalDateTime startTaxYearDate = LocalDateTime.parse((paramTaxYear-1)+"-04-06T00:00:00"); // > 04-06
-			LocalDateTime endTaxYearDate = LocalDateTime.parse(paramTaxYear+"-04-05T24:00:00"); // < 04-06
+		//if (paramTaxYear != null && paramTaxYear > 0) {
+		//	LocalDateTime startTaxYearDate = LocalDateTime.parse((paramTaxYear-1)+"-04-06T00:00:00"); // > 04-06
+		//	LocalDateTime endTaxYearDate = LocalDateTime.parse(paramTaxYear+"-04-05T24:00:00"); // < 04-06
 			
-			predicateTaxYear = t -> t.getDateTime().isAfter(startTaxYearDate) && t.getDateTime().isBefore(endTaxYearDate);
-		} else {
+		//	predicateTaxYear = t -> t.getDateTime().isAfter(startTaxYearDate) && t.getDateTime().isBefore(endTaxYearDate);
+		//} else {
 			predicateTaxYear = t -> true;
-		}
+		//}
 		
 		List<Transaction> transactionListFiltered = Transactions.getInstance().getTransactionList()
 				.stream().filter(predicateTaxYear)
 				.sorted(Comparator.comparing(Transaction::getDateTime))
 				.collect(Collectors.toList());				
 		
-		Predicate<Transaction> predicteBuyOrder = t -> ("BUY".equals(t.getOrderType()));
-		Predicate<Transaction> predicteSellOrder = t -> ("SELL".equals(t.getOrderType()));
-		Predicate<Transaction> predicteDeposit = t -> ("DEPOSIT".equals(t.getMarketType()));
+		Predicate<Transaction> predicteBuyOrder = t ->  "BUY".equals(t.getOrderType());
+		Predicate<Transaction> predicteSellOrder = t -> "SELL".equals(t.getOrderType());
+		Predicate<Transaction> predicteDeposit = t -> (t.getMarketType() != null && "DEPOSIT".equals(t.getMarketType()));
 		Predicate<Transaction> predicteBistampTransaction = t -> (Website.BITSTAMP.equals(t.getWebsite()));
 		Predicate<Transaction> predicteKrakenTransaction = t -> (Website.KRAKEN.equals(t.getWebsite()));
 		Predicate<Transaction> predicteBinanceTransaction = t -> (Website.BINANCE.equals(t.getWebsite()));
@@ -190,8 +191,18 @@ public class ParseController {
 		long bistampTransactionCount = transactionListFiltered.stream().filter(predicteBistampTransaction).count();
 		long krakenTransactionCount = transactionListFiltered.stream().filter(predicteKrakenTransaction).count();
 		long binanceTransactionCount = transactionListFiltered.stream().filter(predicteBinanceTransaction).count();
+		double depositSum = transactionListFiltered.stream().filter(predicteDeposit).mapToDouble(t -> t.getAmount().getAmount()).sum();
+		//btcQty = buyOrderCount - sellOrderCount;
 		
-		double profits = btcQty * AssetPairPricesMap.getAssetPairPrice(Website.BITSTAMP).get(AssetPair.BTCUSD).getPrice() - depositSum;
+		for (Transaction t: transactionListFiltered) {
+			if ("BUY".equals(t.getOrderType()) && Currency.BTC == t.getAmount().getCurrency()) {
+				btcQty += t.getAmount().getAmount();
+			} else if ("SELL".equals(t.getOrderType()) && Currency.BTC == t.getAmount().getCurrency()) {
+				btcQty -= t.getAmount().getAmount();
+			}
+		}
+		
+		double profits = btcQty * AssetPairPricesMap.getAssetPairPrice(Website.BITSTAMP).get(AssetPair.BTCUSD).getPrice();
 		
 		map.put("deposit-count", (double) depositCount);
 		map.put("btc-quantity", btcQty);

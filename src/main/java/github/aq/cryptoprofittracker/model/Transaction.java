@@ -1,4 +1,4 @@
-package github.aq.cryptoinvestmentwatcher.model;
+package github.aq.cryptoprofittracker.model;
 
 import java.time.LocalDateTime;
 
@@ -131,6 +131,9 @@ public class Transaction {
 	}
 	
 	public String getOrderType() {
+		if (orderType == null) {
+			return "";
+		}
 		return orderType.name();
 	}
 

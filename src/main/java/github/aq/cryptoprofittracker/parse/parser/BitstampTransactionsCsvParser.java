@@ -1,4 +1,4 @@
-package github.aq.cryptoinvestmentwatcher.parse.parser;
+package github.aq.cryptoprofittracker.parse.parser;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -14,8 +14,8 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
-import github.aq.cryptoinvestmentwatcher.model.Transaction;
-import github.aq.cryptoinvestmentwatcher.model.Website;
+import github.aq.cryptoprofittracker.model.Transaction;
+import github.aq.cryptoprofittracker.model.Website;
 
 public class BitstampTransactionsCsvParser {
 
@@ -52,7 +52,7 @@ public class BitstampTransactionsCsvParser {
 		    String fee = record.get("Fee");
 		    String orderType = record.get("Sub Type");
 		    
-		    tran.setMarketType(marketType);
+		    tran.setMarketType(marketType.toUpperCase());
 		    tran.setAccountId(accountId);
 		    tran.setOrderType(orderType.toUpperCase());
 		    if (amount.length() > 0) {
@@ -64,7 +64,9 @@ public class BitstampTransactionsCsvParser {
 		    if (rate.length() > 0) {
     		    tran.setRate(rate.split(" ")[0], rate.split(" ")[1]);
 		    }
-		    tran.setFee(fee.split(" ")[0], fee.split(" ")[1]);
+		    if (fee.length() > 0) {
+		    	tran.setFee(fee.split(" ")[0], fee.split(" ")[1]);
+		    }
 		    tran.setDateTime(ldt);
 		    tran.setWebsite(Website.BITSTAMP);		    
 		    list.add(tran);

@@ -1,10 +1,10 @@
-package github.aq.cryptoinvestmentwatcher.parse.parser;
+package github.aq.cryptoprofittracker.parse.parser;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.Files;
+
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,21 +14,15 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
-import github.aq.cryptoinvestmentwatcher.model.Transaction;
+import github.aq.cryptoprofittracker.model.Transaction;
 
-public class BinanceTransactionsCsvParser {
+public class KrakenTransactionsCsvParser {
 
 	
 	public static List<Transaction> parse(String filename) {
 		Reader in = null;
 		List<Transaction> list = new ArrayList<>();
 		
-//		try {
-//			content = new String(Files.readAllBytes(Paths.get(filename)));
-//		} catch (IOException e2) {
-//			// TODO Auto-generated catch block
-//			e2.printStackTrace();
-//		}
 		try {
 			in = new FileReader(Paths.get(filename).toString());
 		} catch (FileNotFoundException e) {

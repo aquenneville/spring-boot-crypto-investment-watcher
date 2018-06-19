@@ -1,4 +1,4 @@
-package github.aq.cryptoinvestmentwatcher;
+package github.aq.cryptoprofittracker;
 
 import java.util.concurrent.Executor;
 
@@ -6,7 +6,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.jms.annotation.EnableJms;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -18,8 +17,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 
 @SpringBootApplication
-@EnableJms
-public class CryptoInvestmentWatcherApplication {
+public class CryptoProfitTrackerApplication {
 	
 	@Bean
 	public WebMvcConfigurer corsConfigurer() {
@@ -32,7 +30,7 @@ public class CryptoInvestmentWatcherApplication {
 	}
 	
 	public static void main(String[] args) {
-		SpringApplication.run(CryptoInvestmentWatcherApplication.class, args);
+		SpringApplication.run(CryptoProfitTrackerApplication.class, args);
 	}
 	
 	@Bean
