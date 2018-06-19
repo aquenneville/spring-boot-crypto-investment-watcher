@@ -2,7 +2,7 @@
 Aggregate crypto historical transactions data from different exchanges
 
 # Features
-- Csv compatible with Bitstamp, Kraken and Binance
+- Csv reading compatible with Bitstamp, Kraken and Binance
 - Java 8 Streams 
 - Spring boot simple security
 
