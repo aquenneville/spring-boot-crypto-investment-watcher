@@ -18,3 +18,4 @@ Aggregate crypto historical transactions data from different exchanges
 - read all files in the transactions/bitstamp folder instead of reading only one file
 - implement kraken csv parsing
 - implement endpoint to only get transactions per exchange
+- implement simple security
