@@ -5,7 +5,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -26,19 +25,19 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import github.aq.cryptoprofittracker.model.AssetPair;
-import github.aq.cryptoprofittracker.model.AssetPairPricesMap;
+import github.aq.cryptoprofittracker.model.AssetPairPrices;
 import github.aq.cryptoprofittracker.model.CryptowatchResponseCurrentPrice;
-import github.aq.cryptoprofittracker.model.Transaction;
-import github.aq.cryptoprofittracker.model.Transactions;
-import github.aq.cryptoprofittracker.model.Website;
-import github.aq.cryptoprofittracker.model.Transaction.Currency;
-import github.aq.cryptoprofittracker.parse.parser.BinanceTransactionsCsvParser;
-import github.aq.cryptoprofittracker.parse.parser.BitstampTransactionsCsvParser;
-import github.aq.cryptoprofittracker.parse.parser.KrakenTransactionsCsvParser;
+import github.aq.cryptoprofittracker.model.Trade;
+import github.aq.cryptoprofittracker.model.Trades;
+import github.aq.cryptoprofittracker.model.Exchange;
+import github.aq.cryptoprofittracker.model.Trade.Currency;
+import github.aq.cryptoprofittracker.parse.parser.BinanceTradesCsvReader;
+import github.aq.cryptoprofittracker.parse.parser.BitstampTradesCsvReader;
+import github.aq.cryptoprofittracker.parse.parser.KrakenTradesCsvReader;
 
 @RestController
-@RequestMapping("/api/v1/transactions")
-public class ParseController {
+@RequestMapping("/api/v1/trades")
+public class TradesController {
 
 	// /api/v1/parse/transactions
 	// portfolio value
@@ -57,18 +56,18 @@ public class ParseController {
 	@RequestMapping(path = "/parse", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody String parseAll() throws Exception{		
 		long start = System.currentTimeMillis();		
-		List<Transaction> list = parseTransactionsInFolder("storage/transactions/bitstamp/bitstamp-account-transactions.csv", Website.BITSTAMP);
+		List<Trade> list = parseTransactionsInFolder("storage/trades/bitstamp/bitstamp-account-transactions.csv", Exchange.BITSTAMP);
 
 		
-		CryptowatchResponseCurrentPrice bitstampBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Website.BITSTAMP, AssetPair.BTCUSD);
-		CryptowatchResponseCurrentPrice bitstampBchBtcResp = callCryptowatchAssetPairCurrentPrice(Website.BITSTAMP, AssetPair.BCHBTC);
-		CryptowatchResponseCurrentPrice krakenBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.BTCUSD);
-		//CryptowatchResponseCurrentPrice binanceBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Website.BINANCE, AssetPair.BTCUSD);
+		CryptowatchResponseCurrentPrice bitstampBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Exchange.BITSTAMP, AssetPair.BTCUSD);
+		CryptowatchResponseCurrentPrice bitstampBchBtcResp = callCryptowatchAssetPairCurrentPrice(Exchange.BITSTAMP, AssetPair.BCHBTC);
+		CryptowatchResponseCurrentPrice krakenBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Exchange.KRAKEN, AssetPair.BTCUSD);
+		CryptowatchResponseCurrentPrice binanceBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Exchange.BINANCE, AssetPair.BTCUSDT);
 		//CryptowatchResponseCurrentPrice krakenEthUsdResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.ETHUSD);
 		//CryptowatchResponseCurrentPrice krakenLtcBtcResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.LTCBTC);
 		//CryptowatchResponseCurrentPrice krakenXrpUsdResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.XRPUSD);
 		
-		AssetPairPricesMap.addAssetPairPrice(AssetPair.BTCUSD, Website.BITSTAMP, bitstampBtcUsdResp.getResult().getPrice());
+		AssetPairPrices.addPrice(AssetPair.BTCUSD, Exchange.BITSTAMP, bitstampBtcUsdResp.getResult().getPrice());
 		//AssetPairPricesMap.addAssetPairPrice(AssetPair.BCHUSD, Website.BITSTAMP, bitstampBchBtcResp.getResult().getPrice());
 		//AssetPairPricesMap.addAssetPairPrice(AssetPair.BTCUSD, Website.KRAKEN, krakenBtcUsdResp.getResult().getPrice());
 		//AssetPairPricesMap.addAssetPairPrice(AssetPair.BTCUSD, Website.BINANCE, binanceBtcUsdResp.getResult().getPrice());
@@ -90,11 +89,11 @@ public class ParseController {
 		
 		long end = System.currentTimeMillis() - start;
 		System.out.println("ms:" + end + " bitstamp: AssetPair.BTCUSD: " + bitstampBtcUsdResp.getResult().getPrice());
-		Transactions.getInstance().getTransactionList().addAll(list);
+		Trades.getInstance().getTransactionList().addAll(list);
 		return "triggered - count: " + bitstampBtcUsdResp + " " + list.size();
 	}
 	
-	public CryptowatchResponseCurrentPrice callCryptowatchAssetPairCurrentPrice(Website website, AssetPair assetPair) {
+	public CryptowatchResponseCurrentPrice callCryptowatchAssetPairCurrentPrice(Exchange website, AssetPair assetPair) {
 		String uri = "https://api.cryptowat.ch/markets/"+website.name().toLowerCase()+"/"+assetPair.name().toLowerCase()+"/price";
 		URL url = null;
 		try {
@@ -133,15 +132,15 @@ public class ParseController {
 		}		
 		connection.disconnect();
 		
-		AssetPairPricesMap.addAssetPairPrice(assetPair, website, resp.getResult().getPrice());
+		AssetPairPrices.addPrice(assetPair, website, resp.getResult().getPrice());
 		return resp;
 	}
 	
-	public List<Transaction> parseTransactionsInFolder(final String filename, Website website) {		
+	public List<Trade> parseTransactionsInFolder(final String filename, Exchange website) {		
 		switch(website.name()) {
-			case "BITSTAMP": return BitstampTransactionsCsvParser.parse(filename); 
-			case "KRAKEN": return KrakenTransactionsCsvParser.parse(filename); 
-			case "BINANCE": return BinanceTransactionsCsvParser.parse(filename);
+			case "BITSTAMP": return BitstampTradesCsvReader.parse(filename); 
+			case "KRAKEN": return KrakenTradesCsvReader.parse(filename); 
+			case "BINANCE": return BinanceTradesCsvReader.parse(filename);
 		}
 	    return null; 
 	}
@@ -163,7 +162,7 @@ public class ParseController {
 		
 		
 		
-		Predicate<Transaction> predicateTaxYear = null;
+		Predicate<Trade> predicateTaxYear = null;
 		//if (paramTaxYear != null && paramTaxYear > 0) {
 		//	LocalDateTime startTaxYearDate = LocalDateTime.parse((paramTaxYear-1)+"-04-06T00:00:00"); // > 04-06
 		//	LocalDateTime endTaxYearDate = LocalDateTime.parse(paramTaxYear+"-04-05T24:00:00"); // < 04-06
@@ -173,17 +172,17 @@ public class ParseController {
 			predicateTaxYear = t -> true;
 		//}
 		
-		List<Transaction> transactionListFiltered = Transactions.getInstance().getTransactionList()
+		List<Trade> transactionListFiltered = Trades.getInstance().getTransactionList()
 				.stream().filter(predicateTaxYear)
-				.sorted(Comparator.comparing(Transaction::getDateTime))
+				.sorted(Comparator.comparing(Trade::getDateTime))
 				.collect(Collectors.toList());				
 		
-		Predicate<Transaction> predicteBuyOrder = t ->  "BUY".equals(t.getOrderType());
-		Predicate<Transaction> predicteSellOrder = t -> "SELL".equals(t.getOrderType());
-		Predicate<Transaction> predicteDeposit = t -> (t.getMarketType() != null && "DEPOSIT".equals(t.getMarketType()));
-		Predicate<Transaction> predicteBistampTransaction = t -> (Website.BITSTAMP.equals(t.getWebsite()));
-		Predicate<Transaction> predicteKrakenTransaction = t -> (Website.KRAKEN.equals(t.getWebsite()));
-		Predicate<Transaction> predicteBinanceTransaction = t -> (Website.BINANCE.equals(t.getWebsite()));
+		Predicate<Trade> predicteBuyOrder = t ->  "BUY".equals(t.getOrderType());
+		Predicate<Trade> predicteSellOrder = t -> "SELL".equals(t.getOrderType());
+		Predicate<Trade> predicteDeposit = t -> (t.getMarketType() != null && "DEPOSIT".equals(t.getMarketType()));
+		Predicate<Trade> predicteBistampTransaction = t -> (Exchange.BITSTAMP.equals(t.getWebsite()));
+		Predicate<Trade> predicteKrakenTransaction = t -> (Exchange.KRAKEN.equals(t.getWebsite()));
+		Predicate<Trade> predicteBinanceTransaction = t -> (Exchange.BINANCE.equals(t.getWebsite()));
 		
 		long buyOrderCount = transactionListFiltered.stream().filter(predicteBuyOrder).count();
 		long sellOrderCount = transactionListFiltered.stream().filter(predicteSellOrder).count();
@@ -194,7 +193,7 @@ public class ParseController {
 		double depositSum = transactionListFiltered.stream().filter(predicteDeposit).mapToDouble(t -> t.getAmount().getAmount()).sum();
 		//btcQty = buyOrderCount - sellOrderCount;
 		
-		for (Transaction t: transactionListFiltered) {
+		for (Trade t: transactionListFiltered) {
 			if ("BUY".equals(t.getOrderType()) && Currency.BTC == t.getAmount().getCurrency()) {
 				btcQty += t.getAmount().getAmount();
 			} else if ("SELL".equals(t.getOrderType()) && Currency.BTC == t.getAmount().getCurrency()) {
@@ -202,7 +201,7 @@ public class ParseController {
 			}
 		}
 		
-		double profits = btcQty * AssetPairPricesMap.getAssetPairPrice(Website.BITSTAMP).get(AssetPair.BTCUSD).getPrice();
+		double profits = btcQty * AssetPairPrices.getPrice(AssetPair.BTCUSD, Exchange.BITSTAMP);
 		
 		map.put("deposit-count", (double) depositCount);
 		map.put("btc-quantity", btcQty);
@@ -212,7 +211,7 @@ public class ParseController {
 		map.put("deposit-count", (double) depositCount);		
 		map.put("btc-profits-usd", profits);
 		map.put("fees-sum", fees);
-		map.put("transactions-count", (double) Transactions.getInstance().getTransactionList().size());
+		map.put("transactions-count", (double) Trades.getInstance().getTransactionList().size());
 		map.put("bitstamp-transactions-count", (double) bistampTransactionCount);
 		map.put("kraken-transactions-count", (double) krakenTransactionCount);
 		map.put("binance-transactions-count", (double) binanceTransactionCount);

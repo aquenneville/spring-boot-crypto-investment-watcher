@@ -1,7 +1,8 @@
 package github.aq.cryptoprofittracker.model;
 
 public enum AssetPair {
-	BTCUSD, 
+	BTCUSD,
+	BTCUSDT,
 	ETHUSD,
 	XRPUSD,
 	BCHBTC,
@@ -11,5 +12,11 @@ public enum AssetPair {
 	NEOBTC,
 	ONTBTC,
 	XVGBTC,
-	TRXBTC, BCHUSD;
+	TRXBTC, 
+	BCHUSD;
+	
+	public String toString() {
+		return this.name().toLowerCase();
+	}
 }
+

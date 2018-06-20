@@ -3,7 +3,7 @@ package github.aq.cryptoprofittracker.model;
 public class AssetPairPrice {
 	
 	private AssetPair assetPair;
-	private Website website;
+	private Exchange website;
 	private double price;
 	
 	public AssetPair getAssetPair() {
@@ -12,10 +12,10 @@ public class AssetPairPrice {
 	public void setAssetPair(AssetPair assetPair) {
 		this.assetPair = assetPair;
 	}
-	public Website getWebsite() {
+	public Exchange getWebsite() {
 		return website;
 	}
-	public void setWebsite(Website website) {
+	public void setWebsite(Exchange website) {
 		this.website = website;
 	}
 	public double getPrice() {

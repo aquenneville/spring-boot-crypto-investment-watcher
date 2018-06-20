@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,15 +14,21 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 
-import github.aq.cryptoprofittracker.model.Transaction;
+import github.aq.cryptoprofittracker.model.Trade;
 
-public class KrakenTransactionsCsvParser {
+public class BinanceTradesCsvReader {
 
 	
-	public static List<Transaction> parse(String filename) {
+	public static List<Trade> parse(String filename) {
 		Reader in = null;
-		List<Transaction> list = new ArrayList<>();
+		List<Trade> list = new ArrayList<>();
 		
+//		try {
+//			content = new String(Files.readAllBytes(Paths.get(filename)));
+//		} catch (IOException e2) {
+//			// TODO Auto-generated catch block
+//			e2.printStackTrace();
+//		}
 		try {
 			in = new FileReader(Paths.get(filename).toString());
 		} catch (FileNotFoundException e) {
@@ -37,7 +43,7 @@ public class KrakenTransactionsCsvParser {
 			e.printStackTrace();
 		}
 		for (CSVRecord record : records) {
-			Transaction tran = new Transaction();
+			Trade tran = new Trade();
 			
 			DateTimeFormatter dTF = DateTimeFormatter.ofPattern("MMM. DD, YYYY, HH:mm a"); //MMM. DD, YYYY, HH:mm PM/AM
 			String dateTimeValue = record.get("Datetime");

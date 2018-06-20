@@ -1,6 +1,6 @@
 package github.aq.cryptoprofittracker.model;
 
-public enum Website {
+public enum Exchange {
 	
 	BITSTAMP, KRAKEN, BINANCE;
 				
