@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class Transaction {
 	
 	public Transaction() {
-		id = UniqueTransactionIdentifierIncrementer.computeNextId();
+		id = TransactionIdIncrementer.computeNextId();
 	}
 	
 	public enum Currency {
@@ -165,4 +165,14 @@ public class Transaction {
 
 	}
 
+	public static class TransactionIdIncrementer {
+
+		public static long idCounter = 0;
+		
+		public static long computeNextId() {
+			idCounter ++;
+			return idCounter;
+		}
+	}
+	
 }
