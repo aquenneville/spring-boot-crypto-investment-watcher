@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import github.aq.cryptoprofittracker.model.AssetPair;
 import github.aq.cryptoprofittracker.model.AssetPortfolio;
-import github.aq.cryptoprofittracker.model.CryptowatchResponseCurrentPrice;
 import github.aq.cryptoprofittracker.model.Transaction;
 import github.aq.cryptoprofittracker.model.Transactions;
 import github.aq.cryptoprofittracker.model.Exchange;

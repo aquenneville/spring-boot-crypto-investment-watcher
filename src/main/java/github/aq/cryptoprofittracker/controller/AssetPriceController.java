@@ -8,7 +8,6 @@ import java.net.URL;
 
 import github.aq.cryptoprofittracker.model.AssetPair;
 import github.aq.cryptoprofittracker.model.AssetPortfolio;
-import github.aq.cryptoprofittracker.model.CryptowatchResponseCurrentPrice;
 import github.aq.cryptoprofittracker.model.Exchange;
 import github.aq.cryptoprofittracker.model.ExchangeAssetPairs;
 
