@@ -12,9 +12,13 @@ Aggregate crypto historical transactions data from different exchanges
 
 # Endpoints
 /api/v1/transactions/parse: parses the bitstamp csv file and loads it in memory, calls cryptowatch to get btc current price
+
 /api/v1/transactions/stats: displays details about the trades, total deposits in usd, btc quantity, btc portfolio value in usd, buy and sell order count...
+
 /api/v1/assets/prices: current prices of assets
+
 /api/v1/assets/prices/update: force update the asset prices
+
 /api/v1/assets/portfolio: current state of asset portfolio
 
 # Todo
