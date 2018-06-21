@@ -8,9 +8,7 @@ public class Transactions {
 	private static Transactions instance; 
 	List<Transaction> transactions = new ArrayList<Transaction>();
 	
-	private Transactions() {
-		
-	}
+	private Transactions() {}
 	
 	public static Transactions getInstance() {
 		if (instance == null) {
@@ -19,15 +17,9 @@ public class Transactions {
 		return instance;
 	}
 	
-	public void addTransaction(Transaction sale) {
-		transactions.add(sale);
-	}
+	public void addTransaction(Transaction sale) { transactions.add(sale); }
 
-	public int size() {
-		return transactions.size();
-	}
+	public int size() { return transactions.size(); }
 
-	public List<Transaction> getTransactionList() {
-		return transactions;
-	}
+	public List<Transaction> getTransactionList() { return transactions;}
 }

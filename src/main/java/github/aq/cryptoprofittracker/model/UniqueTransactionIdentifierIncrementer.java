@@ -1,6 +1,6 @@
 package github.aq.cryptoprofittracker.model;
 
-public class TransactionIdentifier {
+public class UniqueTransactionIdentifierIncrementer {
 
 	public static long idCounter = 0;
 	

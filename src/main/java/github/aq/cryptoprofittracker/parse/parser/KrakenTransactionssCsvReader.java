@@ -16,7 +16,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import github.aq.cryptoprofittracker.model.Transaction;
 
-public class KrakenTransactionsCsvParser {
+public class KrakenTransactionssCsvReader {
 
 	
 	public static List<Transaction> parse(String filename) {

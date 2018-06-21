@@ -38,7 +38,7 @@ public class CryptoProfitTrackerApplication {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5000);
         executor.setMaxPoolSize(5000);        
-        executor.setThreadNamePrefix("transactions-");
+        executor.setThreadNamePrefix("trades-");
         executor.initialize();
         return executor;
     }
@@ -46,9 +46,10 @@ public class CryptoProfitTrackerApplication {
 	@Component
 	public class LoadDataOnStartup implements CommandLineRunner {
 	    public void run(String... args) {
-	    	System.out.println("CommandLineRunnerBean 1");
+	    	//System.out.println("CommandLineRunnerBean 1");
 	    	RestTemplate restTemplate = new RestTemplate();
-	    	String result = restTemplate.getForObject("http://localhost:8080/api/v1/transactions/parse", String.class);
+	    	String result = restTemplate.getForObject("http://localhost:8080/api/v1/trades/parse", String.class);
+	    	result = restTemplate.getForObject("http://localhost:8080/api/v1/assets/price", String.class);
 	    }
 	}
 }

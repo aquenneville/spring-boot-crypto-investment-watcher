@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class Transaction {
 	
 	public Transaction() {
-		id = TransactionIdentifier.computeNextId();
+		id = UniqueTransactionIdentifierIncrementer.computeNextId();
 	}
 	
 	public enum Currency {
@@ -47,7 +47,7 @@ public class Transaction {
 						
 	}
 	
-	private Website website;
+	private Exchange website;
 	private String marketType; 
 	private LocalDateTime dateTime; // bitstamp format = MMM. DD, YYYY, HH:mm PM/AM
 	private String accountId;
@@ -144,11 +144,11 @@ public class Transaction {
 		}
 	}
 	
-	public Website getWebsite() {
+	public Exchange getWebsite() {
 		return website;
 	}
 
-	public void setWebsite(Website website) {
+	public void setWebsite(Exchange website) {
 		this.website = website;
 	}
 	
