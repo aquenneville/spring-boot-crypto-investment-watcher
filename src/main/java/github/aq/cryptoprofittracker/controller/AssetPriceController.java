@@ -25,9 +25,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @RequestMapping("/api/v1/assets/prices")
 public class AssetPriceController {
 
+	 @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	 public @ResponseBody AssetPortfolio.AssetPairPrices listAssetPairPrices() {
+		 return AssetPortfolio.getAssetPrices();
+	 }
+	
 	//TODO: Add the option to force the update
-	// make it more generic by reomposing the assets portfolio and then requesting just the prices needed
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	// make it more generic by recomposing the assets portfolio and then requesting just the prices needed
+    @RequestMapping(path = "/update", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String requestCurrentAssetPairPrices() throws Exception{
     	int pricesFetchedCount = 0;
         if (AssetPortfolio.getLastPriceUpdate() == null) {
@@ -40,21 +45,6 @@ public class AssetPriceController {
         		}
         	}
         			
-	    	//CryptowatchResponseCurrentPrice bitstampBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Exchange.BITSTAMP, AssetPair.BTCUSD);
-	        //CryptowatchResponseCurrentPrice bitstampBchBtcResp = callCryptowatchAssetPairCurrentPrice(Exchange.BITSTAMP, AssetPair.BCHBTC);
-	        //CryptowatchResponseCurrentPrice krakenBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Exchange.KRAKEN, AssetPair.BTCUSD);
-	        //CryptowatchResponseCurrentPrice binanceBtcUsdResp = callCryptowatchAssetPairCurrentPrice(Exchange.BINANCE, AssetPair.BTCUSDT);
-	        //CryptowatchResponseCurrentPrice krakenEthUsdResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.ETHUSD);
-	        //CryptowatchResponseCurrentPrice krakenLtcBtcResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.LTCBTC);
-	        //CryptowatchResponseCurrentPrice krakenXrpUsdResp = callCryptowatchAssetPairCurrentPrice(Website.KRAKEN, AssetPair.XRPUSD);
-	        
-	        //AssetPortfolio.getAssetPrices().addPrice(Exchange.BITSTAMP, AssetPair.BTCUSD, bitstampBtcUsdResp.getResult().getPrice());
-	        //AssetPairPricesMap.addAssetPairPrice(AssetPair.BCHUSD, Website.BITSTAMP, bitstampBchBtcResp.getResult().getPrice());
-	        //AssetPairPricesMap.addAssetPairPrice(AssetPair.BTCUSD, Website.KRAKEN, krakenBtcUsdResp.getResult().getPrice());
-	        //AssetPairPricesMap.addAssetPairPrice(AssetPair.BTCUSD, Website.BINANCE, binanceBtcUsdResp.getResult().getPrice());
-	        //AssetPairPricesMap.addAssetPairPrice(AssetPair.ETHUSD, Website.KRAKEN, krakenEthUsdResp.getResult().getPrice());
-	        //AssetPairPricesMap.addAssetPairPrice(AssetPair.LTCBTC, Website.KRAKEN, krakenLtcBtcResp.getResult().getPrice());
-	        //AssetPairPricesMap.addAssetPairPrice(AssetPair.XRPUSD, Website.KRAKEN, krakenXrpUsdResp.getResult().getPrice());
         }
         return "Done - prices fetched count: " + pricesFetchedCount;
     }
