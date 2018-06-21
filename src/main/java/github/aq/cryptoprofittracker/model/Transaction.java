@@ -12,7 +12,7 @@ public class Transaction {
 	}
 	
 	public enum Currency {
-		BTC, USD, EUR; //, ETH, ETC, 
+		BTC, USD, EUR, XRP, ETH, LTC, GBP, STR, BCH, EOS, XMR;  
 	}
 	
 	public enum OrderType {
@@ -47,7 +47,7 @@ public class Transaction {
 						
 	}
 	
-	private Exchange website;
+	private Exchange exchange;
 	private String marketType; 
 	private LocalDateTime dateTime; // bitstamp format = MMM. DD, YYYY, HH:mm PM/AM
 	private String accountId;
@@ -57,6 +57,8 @@ public class Transaction {
 	private AmountCurrency fee;
 	private OrderType orderType;
 	private long id;
+	private String websiteTxId;
+	private String websiteTxRefId;
 
 	public String getMarketType() {
 		return marketType;
@@ -144,12 +146,12 @@ public class Transaction {
 		}
 	}
 	
-	public Exchange getWebsite() {
-		return website;
+	public Exchange getExchange() {
+		return exchange;
 	}
 
-	public void setWebsite(Exchange website) {
-		this.website = website;
+	public void setExchange(Exchange exchange) {
+		this.exchange = exchange;
 	}
 	
 	public long getId() {
@@ -158,6 +160,22 @@ public class Transaction {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+	
+	public String getWebsiteTxId() {
+		return websiteTxId;
+	}
+
+	public void setWebsiteTxId(String websiteTxId) {
+		this.websiteTxId = websiteTxId;
+	}
+
+	public String getWebsiteTxRefId() {
+		return websiteTxRefId;
+	}
+
+	public void setWebsiteTxRefId(String websiteTxRefId) {
+		this.websiteTxRefId = websiteTxRefId;
 	}
 
 	public static void main(String[] args) {

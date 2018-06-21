@@ -104,9 +104,9 @@ public class TransactionsController {
 	
 	public List<Transaction> parseTransactionsInFolder(final String filename, Exchange website) {		
 		switch(website.name()) {
-			case "BITSTAMP": return BitstampTransactionsCsvReader.parse(filename); 
-			case "KRAKEN": return KrakenTransactionssCsvReader.parse(filename); 
-			case "BINANCE": return BinanceTransactionsCsvReader.parse(filename);
+			case "BITSTAMP": return BitstampTransactionsCsvReader.read(filename); 
+			case "KRAKEN": return KrakenTransactionssCsvReader.read(filename); 
+			case "BINANCE": return BinanceTransactionsCsvReader.read(filename);
 		}
 	    return null; 
 	}
@@ -146,9 +146,9 @@ public class TransactionsController {
 		Predicate<Transaction> predicteBuyOrder = t ->  "BUY".equals(t.getOrderType());
 		Predicate<Transaction> predicteSellOrder = t -> "SELL".equals(t.getOrderType());
 		Predicate<Transaction> predicteDeposit = t -> (t.getMarketType() != null && "DEPOSIT".equals(t.getMarketType()));
-		Predicate<Transaction> predicteBistampTransaction = t -> (Exchange.BITSTAMP.equals(t.getWebsite()));
-		Predicate<Transaction> predicteKrakenTransaction = t -> (Exchange.KRAKEN.equals(t.getWebsite()));
-		Predicate<Transaction> predicteBinanceTransaction = t -> (Exchange.BINANCE.equals(t.getWebsite()));
+		Predicate<Transaction> predicteBistampTransaction = t -> (Exchange.BITSTAMP.equals(t.getExchange()));
+		Predicate<Transaction> predicteKrakenTransaction = t -> (Exchange.KRAKEN.equals(t.getExchange()));
+		Predicate<Transaction> predicteBinanceTransaction = t -> (Exchange.BINANCE.equals(t.getExchange()));
 		
 		long buyOrderCount = transactionListFiltered.stream().filter(predicteBuyOrder).count();
 		long sellOrderCount = transactionListFiltered.stream().filter(predicteSellOrder).count();
