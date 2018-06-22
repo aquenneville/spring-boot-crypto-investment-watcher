@@ -1,5 +1,6 @@
 package github.aq.cryptoprofittracker.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -32,10 +33,11 @@ import github.aq.cryptoprofittracker.model.Exchange;
 import github.aq.cryptoprofittracker.model.Transaction.Currency;
 import github.aq.cryptoprofittracker.parse.parser.BinanceTransactionsCsvReader;
 import github.aq.cryptoprofittracker.parse.parser.BitstampTransactionsCsvReader;
-import github.aq.cryptoprofittracker.parse.parser.KrakenTransactionssCsvReader;
+import github.aq.cryptoprofittracker.parse.parser.KrakenLedgerTransactionsCsvReader;
+import github.aq.cryptoprofittracker.parse.parser.KrakenTradeTransactionsCsvReader;
 
 @RestController
-@RequestMapping("/api/v1/trades")
+@RequestMapping("/api/v1/transactions")
 public class TransactionsController {
 
 	// /api/v1/parse/transactions
@@ -54,61 +56,39 @@ public class TransactionsController {
 	// TODO: rewrite the try-catch
 	@RequestMapping(path = "/parse", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody String parseAll() throws Exception{		
-		List<Transaction> list = parseTransactionsInFolder("storage/trades/bitstamp/bitstamp-account-transactions.csv", Exchange.BITSTAMP);
+		List<Transaction> list = parseTransactionsInFolder("storage/transactions/bitstamp/", Exchange.BITSTAMP);
 		Transactions.getInstance().getTransactionList().addAll(list);
+		list = parseTransactionsInFolder("storage/transactions/kraken/ledgers/", Exchange.KRAKEN);
+		Transactions.getInstance().getTransactionList().addAll(list);
+		list = parseTransactionsInFolder("storage/transactions/kraken/trades/", Exchange.KRAKEN);
+		Transactions.getInstance().getTransactionList().addAll(list);
+		
 		return "triggered - count: " + Transactions.getInstance().getTransactionList().size();
 	}
 	
-	public CryptowatchResponseCurrentPrice callCryptowatchAssetPairCurrentPrice(Exchange exchange, AssetPair assetPair) {
-		String uri = "https://api.cryptowat.ch/markets/"+exchange.toString()+"/"+assetPair.name().toLowerCase()+"/price";
-		URL url = null;
-		try {
-			url = new URL(uri);
-		} catch (MalformedURLException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+	public List<Transaction> parseTransactionsInFolder(final String folder, Exchange website) {		
+		File inFolder = new File(folder);
+		List<Transaction> transactionHistory = null;
+		for (final File fileEntry: inFolder.listFiles()) {
+			List<Transaction> transactions = null;
+			if (fileEntry.isFile()) {
+				
+				switch(website.name()) {
+					case "BITSTAMP": transactions = BitstampTransactionsCsvReader.read(fileEntry.getAbsolutePath()); 
+					break;
+					case "KRAKEN": 
+						transactions = folder.endsWith("ledgers/") ? 
+								KrakenLedgerTransactionsCsvReader.read(fileEntry.getAbsolutePath()):
+								KrakenTradeTransactionsCsvReader.read(fileEntry.getAbsolutePath()); 
+						break;
+					case "BINANCE": transactions = BinanceTransactionsCsvReader.read(fileEntry.getAbsolutePath()); break;
+				}
+			}
+			if (transactions != null) {
+				transactionHistory.addAll(transactions);
+			}
 		}
-		HttpURLConnection connection = null;
-		try {
-			connection = (HttpURLConnection) url.openConnection();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
-			connection.setRequestMethod("GET");
-		} catch (ProtocolException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		//connection.setRequestProperty("Accept", "application/xml");
-		ObjectMapper mapper = new ObjectMapper();	
-		CryptowatchResponseCurrentPrice resp = null;
-		try {
-			resp = mapper.readValue(connection.getInputStream(), CryptowatchResponseCurrentPrice.class);
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
-		connection.disconnect();
-		
-		AssetPortfolio.getAssetPrices().addPrice(exchange, assetPair, resp.getResult().getPrice());
-		return resp;
-	}
-	
-	public List<Transaction> parseTransactionsInFolder(final String filename, Exchange website) {		
-		switch(website.name()) {
-			case "BITSTAMP": return BitstampTransactionsCsvReader.read(filename); 
-			case "KRAKEN": return KrakenTransactionssCsvReader.read(filename); 
-			case "BINANCE": return BinanceTransactionsCsvReader.read(filename);
-		}
-	    return null; 
+	    return transactionHistory; 
 	}
 	
 	

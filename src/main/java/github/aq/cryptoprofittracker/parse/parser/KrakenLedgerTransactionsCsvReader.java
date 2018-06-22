@@ -10,52 +10,46 @@ import org.apache.commons.csv.CSVRecord;
 import github.aq.cryptoprofittracker.model.Exchange;
 import github.aq.cryptoprofittracker.model.Transaction;
 
-public class KrakenTransactionssCsvReader {
+public class KrakenLedgerTransactionsCsvReader {
 	
 	public static List<Transaction> read(String filename) {
 		
 		List<Transaction> list = new ArrayList<>();
-		Iterable<CSVRecord> records = FileCsvReader.read(filename);
+		Iterable<CSVRecord> records = FileReader.read(filename);
 		
 		for (CSVRecord record : records) {
 			Transaction tran = new Transaction();
-			
-			
-			String txRefId = record.get("refid");
-			if (txRefId != null) { 
-				// TODO: parse ledger transactions: deposits and withdrawals ?
+			 
+			// TODO: parse ledger transactions: deposits and withdrawals ?	
+			String txId = record.get("txid");
+			if (!"".equals(txId)) {
+				tran.setWebsiteTxId(txId);
+				tran.setExchange(Exchange.KRAKEN);
 				
-				String txId = record.get("txid");
-				if (!"".equals(txId)) {
-					tran.setWebsiteTxId(txId);
-					tran.setExchange(Exchange.KRAKEN);
-					
-					tran.setWebsiteTxRefId(txRefId);
-					
-					DateTimeFormatter dTF = DateTimeFormatter.ofPattern("YYYY-MM-DD HH:mm:ss"); //24 hr YYYY-MM-DD HH:mm:ss
-					String dateTimeValue = record.get("time");
-					LocalDateTime ldt = LocalDateTime.parse(dateTimeValue, dTF);
-					tran.setDateTime(ldt);
-					
-					String aclass = record.get("aclass");
-					
-					String type = record.get("type");
-					tran.setMarketType(type.toUpperCase());
-					
-					String assetCode = record.get("asset");
-					String amount = record.get("amount");
-					String convertedAssetCode = mapToAppAssetCode(assetCode);
-					tran.setAmount(amount, convertedAssetCode);
-					
-					String fee = record.get("fee");
-					tran.setAmount(fee, convertedAssetCode);
-					
-				    list.add(tran);
-				}
-			} else { // parsing trade transactions
-				// txid, ordertxid, pair, time, type, ordertype, price, cost, fee, volume, margin, misc, ledgers
+				String txRefId = record.get("refid");
+				tran.setWebsiteTxRefId(txRefId);
 				
+				DateTimeFormatter dTF = DateTimeFormatter.ofPattern("YYYY-MM-DD HH:mm:ss"); //24 hr YYYY-MM-DD HH:mm:ss
+				String dateTimeValue = record.get("time");
+				LocalDateTime ldt = LocalDateTime.parse(dateTimeValue, dTF);
+				tran.setDateTime(ldt);
+				
+				String aclass = record.get("aclass");
+				
+				String type = record.get("type");
+				tran.setMarketType(type.toUpperCase());
+				
+				String assetCode = record.get("asset");
+				String amount = record.get("amount");
+				String convertedAssetCode = mapToAppAssetCode(assetCode);
+				tran.setAmount(amount, convertedAssetCode);
+				
+				String fee = record.get("fee");
+				tran.setAmount(fee, convertedAssetCode);
+				
+			    list.add(tran);
 			}
+			
 		}
 		return list;
 	}

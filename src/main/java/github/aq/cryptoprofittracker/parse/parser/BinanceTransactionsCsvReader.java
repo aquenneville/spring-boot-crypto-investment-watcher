@@ -13,7 +13,7 @@ public class BinanceTransactionsCsvReader {
 	public static List<Transaction> read(String filename) {
 		List<Transaction> list = new ArrayList<>();
 		
-		Iterable<CSVRecord> records = FileCsvReader.read(filename);
+		Iterable<CSVRecord> records = FileReader.read(filename);
 
 		for (CSVRecord record : records) {
 			Transaction tran = new Transaction();
