@@ -38,22 +38,30 @@ public class KrakenTradeTransactionsCsvReader {
 			String assetOrigine = pair.substring(4, 7);
 			tran.setAmount(amount, newAsset);
 			
+			String type = record.get("type").toUpperCase();
 			if (!assetOrigine.startsWith("Z")) {
 				// create second transaction i.e XXRPXBT, sell transaction should be added for XXBT
-				Transaction sellTran = new Transaction();
-				sellTran.setWebsiteTxRefId(txRefId);
-				sellTran.setWebsiteTxId(txId);
-				sellTran.setExchange(Exchange.KRAKEN);
-				String amountCost = record.get("cost");
-				sellTran.setAmount(amountCost, assetOrigine);
-				sellTran.setOrderType(Transaction.OrderType.SELL.name());
+				Transaction exchangeTran = new Transaction();
+				exchangeTran.setWebsiteTxRefId(txRefId);
+				exchangeTran.setWebsiteTxId(txId);
+				exchangeTran.setExchange(Exchange.KRAKEN);
+				String amountCost = "";
+				if ("BUY".equals(type)) {
+					amountCost = "" + (Double.parseDouble(record.get("cost")) * -1);
+					exchangeTran.setOrderType(Transaction.OrderType.BUY.name());
+				} else if ("SELL".equals(type)) {
+					amountCost = record.get("cost");
+					exchangeTran.setOrderType(Transaction.OrderType.BUY.name());
+				}	
+				exchangeTran.setAmount(amountCost, assetOrigine);
+				exchangeTran.setOrderType(Transaction.OrderType.BUY.name());
 				String fee = record.get("fee");
-				sellTran.setFee(fee, assetOrigine);
+				exchangeTran.setFee(fee, assetOrigine);
 				//sellTran.setRate
-				list.add(sellTran);
+				list.add(exchangeTran);
 			}
 			
-			DateTimeFormatter dTF = DateTimeFormatter.ofPattern("YYYY-MM-DD HH:mm:ss"); //24 hr YYYY-MM-DD HH:mm:ss
+			DateTimeFormatter dTF = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); //24 hr YYYY-MM-DD HH:mm:ss
 			String dateTimeValue = record.get("time");
 			LocalDateTime ldt = LocalDateTime.parse(dateTimeValue, dTF);
 			tran.setDateTime(ldt);
@@ -61,7 +69,6 @@ public class KrakenTradeTransactionsCsvReader {
 			String ordertype = record.get("ordertype");
 			tran.setMarketType(ordertype.toUpperCase());
 			
-			String type = record.get("type").toUpperCase();
 			if ("BUY".equals(type)) {
 				tran.setOrderType(Transaction.OrderType.BUY.name());
 			} else if ("SELL".equals(type)) {
