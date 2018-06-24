@@ -264,6 +264,16 @@ public class TransactionsController {
 		map.put(asset+"-buy-quantities", buyQuantities);
 		map.put(asset+"-set-prices", sellPrices);
 		map.put(asset+"-sell-quantities", sellQuantities);
+		
+		double profits = 0;
+		for (Transaction t: transactionListFiltered) {
+		    if ("BUY".equals(t.getOrderType())) {
+		        profits -= t.getAmount().getAmount();
+		    } else if ("SELL".equals(t.getOrderType())) {
+		        profits += t.getAmount().getAmount();
+		    }
+		}
+		map.put("profits", profits);
 		return map;
 	}
 }
