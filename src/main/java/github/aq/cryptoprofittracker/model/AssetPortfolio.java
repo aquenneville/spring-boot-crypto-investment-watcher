@@ -6,14 +6,14 @@ import java.util.List;
 public class AssetPortfolio {
 
 	static Balances balances;
-	static AssetPairPrices assetPrices;
+	static PairPrices assetPrices;
 	static LocalDate lastPriceUpdate;
 	
 	public static Balances getBalances() {
 		return balances;
 	}
 	
-	public static AssetPairPrices getAssetPrices() {
+	public static PairPrices getAssetPrices() {
 		return assetPrices;
 	}
 
@@ -27,38 +27,38 @@ public class AssetPortfolio {
 	
 	public class Balances {
 
-		List<ExchangeAssetPairs> assetPortfolios;
+		List<ExchangePairs> assetBalances;
 		
-		public List<ExchangeAssetPairs> getAssetPortfolios() {
-			return assetPortfolios;
+		public List<ExchangePairs> getAssetPortfolios() {
+			return assetBalances;
 		}
 		
-		public void addQuantity(Exchange exchange, AssetPair assetPair, double quantity) {
+		public void addQuantity(Exchange exchange, Pair assetPair, double quantity) {
 	        int i = 0;
 	        boolean addedAssetPairPrice = false;
-	        for (ExchangeAssetPairs exchangeAssetPairs: assetPortfolios) {
+	        for (ExchangePairs exchangeAssetPairs: assetBalances) {
 	            if (exchange.equals(exchangeAssetPairs.getExchange())) {
-	                ExchangeAssetPairs eap = assetPortfolios.get(i);
+	                ExchangePairs eap = assetBalances.get(i);
 	                eap.addQuantity(assetPair, quantity);
 	                addedAssetPairPrice = true;
 	                break;
 	            } 
 	        }
 	        if (addedAssetPairPrice) {
-	            ExchangeAssetPairs eap = new ExchangeAssetPairs();
+	            ExchangePairs eap = new ExchangePairs();
 	            eap.addQuantity(assetPair, quantity);
-	            assetPortfolios.add(eap);
+	            assetBalances.add(eap);
 	        }
 	    }
 	    
-	    public double getQuantity(Exchange exchange, AssetPair assetPair) {
+	    public double getQuantity(Exchange exchange, Pair assetPair) {
 	        int i = 0;
 	        double quantity = 0;
-	        for (ExchangeAssetPairs exchangeAssetPairs: assetPortfolios) {
+	        for (ExchangePairs exchangeAssetPairs: assetBalances) {
 	            if (exchange.equals(exchangeAssetPairs.getExchange())) {
-	                ExchangeAssetPairs eap = assetPortfolios.get(i);
-	                if (eap.getAssetPairs().containsKey(assetPair)) {
-	                    return eap.getAssetPairs().get(assetPair);
+	                ExchangePairs eap = assetBalances.get(i);
+	                if (eap.getPairs().containsKey(assetPair)) {
+	                    return eap.getPairs().get(assetPair);
 	                }  
 	            } 
 	        }
@@ -66,36 +66,36 @@ public class AssetPortfolio {
 	    }
 	}
 	
-	public class AssetPairPrices {
+	public class PairPrices {
 
-		List<ExchangeAssetPairs> list;
+		List<ExchangePairs> pairs;
 
-	    public void addPrice(Exchange exchange, AssetPair assetPair, double price) {
+	    public void addPrice(Exchange exchange, Pair assetPair, double price) {
 	        int i = 0;
 	        boolean addedAssetPairPrice = false;
-	        for (ExchangeAssetPairs exchangeAssetPairs: list) {
+	        for (ExchangePairs exchangeAssetPairs: pairs) {
 	            if (exchange.equals(exchangeAssetPairs.getExchange())) {
-	                ExchangeAssetPairs eap = list.get(i);
+	                ExchangePairs eap = pairs.get(i);
 	                eap.addPrice(assetPair, price);
 	                addedAssetPairPrice = true;
 	                break;
 	            } 
 	        }
 	        if (addedAssetPairPrice) {
-	            ExchangeAssetPairs eap = new ExchangeAssetPairs();
+	            ExchangePairs eap = new ExchangePairs();
 	            eap.addPrice(assetPair, price);
-	            list.add(eap);
+	            pairs.add(eap);
 	        }
 	    }
 	    
-	    public double getPrice(Exchange exchange, AssetPair assetPair) {
+	    public double getPrice(Exchange exchange, Pair assetPair) {
 	        int i = 0;
 	        double price = 0;
-	        for (ExchangeAssetPairs exchangeAssetPairs: list) {
+	        for (ExchangePairs exchangeAssetPairs: pairs) {
 	            if (exchange.equals(exchangeAssetPairs.getExchange())) {
-	                ExchangeAssetPairs eap = list.get(i);
-	                if (eap.getAssetPairs().containsKey(assetPair)) {
-	                    return eap.getAssetPairs().get(assetPair);
+	                ExchangePairs eap = pairs.get(i);
+	                if (eap.getPairs().containsKey(assetPair)) {
+	                    return eap.getPairs().get(assetPair);
 	                }  
 	            } 
 	        }

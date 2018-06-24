@@ -26,7 +26,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import github.aq.cryptoprofittracker.model.AssetPair;
+import github.aq.cryptoprofittracker.model.Pair;
 import github.aq.cryptoprofittracker.model.AssetPortfolio;
 import github.aq.cryptoprofittracker.model.Transaction;
 import github.aq.cryptoprofittracker.model.Transactions;
@@ -169,7 +169,7 @@ public class TransactionsController {
 			}
 		}
 		
-		double profits = btcQty * AssetPortfolio.getAssetPrices().getPrice(Exchange.BITSTAMP, AssetPair.BTCUSD);
+		double profits = btcQty * AssetPortfolio.getAssetPrices().getPrice(Exchange.BITSTAMP, Pair.BTCUSD);
 		
 		map.put("deposit-count", (double) depositCount);
 		map.put("btc-quantity", btcQty);
