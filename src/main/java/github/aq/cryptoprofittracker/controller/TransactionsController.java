@@ -142,13 +142,10 @@ public class TransactionsController {
 	public @ResponseBody Map<String, Double> computeProfit(@RequestParam(value = "tax-year", required = false) Integer paramTaxYear) { 
 		
 		Map<String, Double> map = new HashMap<String, Double>();
-		double btcQty = 0;
+		double btcBalance = 0;
 		// filter out period: 2016-2017
 		// filter out assets: btc, eth
 		double fees = 0;
-
-		
-		
 		
 		Predicate<Transaction> predicateTaxYear = null;
 		//if (paramTaxYear != null && paramTaxYear > 0) {
@@ -182,27 +179,34 @@ public class TransactionsController {
 		
 		for (Transaction t: transactionListFiltered) {
 			if ("BUY".equals(t.getOrderType()) && Currency.BTC == t.getAmount().getCurrency()) {
-				btcQty += t.getAmount().getAmount();
+			    btcBalance += t.getAmount().getAmount();
 			} else if ("SELL".equals(t.getOrderType()) && Currency.BTC == t.getAmount().getCurrency()) {
-				btcQty -= t.getAmount().getAmount();
+			    btcBalance -= t.getAmount().getAmount();
 			}
 		}
-		
-		double profits = btcQty * AssetPortfolio.getAssetPrices().getPrice(Exchange.BITSTAMP, Pair.BTCUSD);
+		AssetPortfolio.getBalances().addBalance(Exchange.BITSTAMP, Pair.BTCUSD, btcBalance);
 		
 		map.put("deposit-count", (double) depositCount);
-		map.put("btc-quantity", btcQty);
+		map.put("btc-balance", btcBalance);
 		map.put("buy-order-count", (double) buyOrderCount);
 		map.put("sell-order-count", (double) sellOrderCount);
 		map.put("deposit-sum", depositSum);
 		map.put("deposit-count", (double) depositCount);		
-		map.put("btc-profits-usd", profits);
 		map.put("fees-sum", fees);
 		map.put("transactions-count", (double) Transactions.getInstance().getTransactionList().size());
 		map.put("bitstamp-transactions-count", (double) bistampTransactionCount);
 		map.put("kraken-transactions-count", (double) krakenTransactionCount);
 		map.put("binance-transactions-count", (double) binanceTransactionCount);
 		
+		double profits = 0;
+        for (Transaction t: transactionListFiltered) {
+            if ("BUY".equals(t.getOrderType())) {
+                profits -= t.getRate().getAmount();
+            } else if ("SELL".equals(t.getOrderType())) {
+                profits += t.getRate().getAmount();
+            }
+        }
+        map.put("profits", profits);
 		return map;
 	}
 	
