@@ -2,6 +2,7 @@ package github.aq.cryptoprofittracker.controller;
 
 import java.io.File;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,38 @@ import github.aq.cryptoprofittracker.parse.parser.KrakenTradeTransactionsCsvRead
 @RequestMapping("/api/v1/transactions")
 public class TransactionsController {
 
+	@RequestMapping(path = "/parse/{exchange}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody String parseTransactionsByExchange(@PathVariable("exchange") String exchange) throws Exception {
+		Transactions.getInstance().getTransactionList().clear();
+		exchange = exchange.toUpperCase();
+		switch(exchange) {
+		case "BITSTAMP":
+		List<Transaction> list = parseTransactionsInFolder("storage/transactions/bitstamp/", Exchange.BITSTAMP);
+		Transactions.getInstance().getTransactionList().addAll(list);
+		break;
+		
+		case "KRAKEN":
+		list = parseTransactionsInFolder("storage/transactions/kraken/ledgers/", Exchange.KRAKEN);
+		Transactions.getInstance().getTransactionList().addAll(list);
+		
+		list = parseTransactionsInFolder("storage/transactions/kraken/trades/", Exchange.KRAKEN);
+		Transactions.getInstance().getTransactionList().addAll(list);
+		break;
+		
+		case "BINANCE":
+		list = parseTransactionsInFolder("storage/transactions/binance/deposits/", Exchange.BINANCE);
+		Transactions.getInstance().getTransactionList().addAll(list);
+		
+		list = parseTransactionsInFolder("storage/transactions/binance/trades/", Exchange.BINANCE);
+		Transactions.getInstance().getTransactionList().addAll(list);
+		
+		//list = parseTransactionsInFolder("storage/transactions/binance/orders/", Exchange.BINANCE);
+		//Transactions.getInstance().getTransactionList().addAll(list);
+		break;
+		}
+		return "triggered - count: " + Transactions.getInstance().getTransactionList().size();
+		
+	}
 	// /api/v1/parse/transactions
 	// portfolio value
 	// fees 
@@ -48,7 +81,9 @@ public class TransactionsController {
 	
 	// TODO: rewrite the try-catch
 	@RequestMapping(path = "/parse", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody String parseAll() throws Exception{		
+	public @ResponseBody String parseAll() throws Exception{
+		Transactions.getInstance().getTransactionList().clear();
+		
 		List<Transaction> list = parseTransactionsInFolder("storage/transactions/bitstamp/", Exchange.BITSTAMP);
 		Transactions.getInstance().getTransactionList().addAll(list);
 		
@@ -72,7 +107,7 @@ public class TransactionsController {
 	
 	public List<Transaction> parseTransactionsInFolder(final String folder, Exchange website) {		
 		File inFolder = new File(folder);
-		List<Transaction> transactionHistory = null;
+		List<Transaction> transactionHistory = new ArrayList<Transaction>();
 		for (final File fileEntry: inFolder.listFiles()) {
 			List<Transaction> transactions = null;
 			if (fileEntry.isFile()) {
