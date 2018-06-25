@@ -34,8 +34,8 @@ public class KrakenTradeTransactionsCsvReader {
 			
 			String pair = record.get("pair");
 			String amount = record.get("vol");
-			String newAsset = pair.substring(0, 3);
-			String assetOrigine = pair.substring(4, 7);
+			String newAsset = pair.substring(0, 4);
+			String assetOrigine = pair.substring(4);
 			tran.setAmount(amount, newAsset);
 			
 			String type = record.get("type").toUpperCase();
@@ -61,7 +61,7 @@ public class KrakenTradeTransactionsCsvReader {
 				list.add(exchangeTran);
 			}
 			
-			DateTimeFormatter dTF = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); //24 hr YYYY-MM-DD HH:mm:ss
+			DateTimeFormatter dTF = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSS"); //24 hr YYYY-MM-DD HH:mm:ss.SSSS
 			String dateTimeValue = record.get("time");
 			LocalDateTime ldt = LocalDateTime.parse(dateTimeValue, dTF);
 			tran.setDateTime(ldt);

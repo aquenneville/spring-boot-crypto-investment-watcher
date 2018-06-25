@@ -21,7 +21,7 @@ public class FileReader {
 		}
 		Iterable<CSVRecord> records = null;
 		try {
-			records = CSVFormat.EXCEL.parse(in);
+			records = CSVFormat.EXCEL.withFirstRecordAsHeader().parse(in);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

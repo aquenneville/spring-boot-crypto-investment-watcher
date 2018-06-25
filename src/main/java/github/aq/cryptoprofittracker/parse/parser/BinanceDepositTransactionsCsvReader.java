@@ -20,8 +20,8 @@ public class BinanceDepositTransactionsCsvReader {
 		for (CSVRecord record : records) {
 			Transaction tran = new Transaction();
 			
-			DateTimeFormatter dTF = DateTimeFormatter.ofPattern("yyyy-mm-DD HH:mm:ss"); //MMM. DD, YYYY, HH:mm PM/AM
-			String dateTimeValue = record.get("Date(UTC)");
+			DateTimeFormatter dTF = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); //MMM. DD, YYYY, HH:mm PM/AM
+			String dateTimeValue = record.get("Date");
 			LocalDateTime ldt = LocalDateTime.parse(dateTimeValue, dTF);
 			tran.setDateTime(ldt);
 			
