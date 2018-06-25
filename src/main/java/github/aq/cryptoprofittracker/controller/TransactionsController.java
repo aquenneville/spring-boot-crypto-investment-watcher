@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -30,8 +31,11 @@ import github.aq.cryptoprofittracker.model.AssetPortfolio;
 import github.aq.cryptoprofittracker.model.Transaction;
 import github.aq.cryptoprofittracker.model.Transactions;
 import github.aq.cryptoprofittracker.model.Exchange;
+import github.aq.cryptoprofittracker.model.Transaction.AmountCurrency;
 import github.aq.cryptoprofittracker.model.Transaction.Currency;
-import github.aq.cryptoprofittracker.parse.parser.BinanceTransactionsCsvReader;
+import github.aq.cryptoprofittracker.parse.parser.BinanceDepositTransactionsCsvReader;
+import github.aq.cryptoprofittracker.parse.parser.BinanceOrderTransactionsCsvReader;
+import github.aq.cryptoprofittracker.parse.parser.BinanceTradeTransactionsCsvReader;
 import github.aq.cryptoprofittracker.parse.parser.BitstampTransactionsCsvReader;
 import github.aq.cryptoprofittracker.parse.parser.KrakenLedgerTransactionsCsvReader;
 import github.aq.cryptoprofittracker.parse.parser.KrakenTradeTransactionsCsvReader;
@@ -58,10 +62,21 @@ public class TransactionsController {
 	public @ResponseBody String parseAll() throws Exception{		
 		List<Transaction> list = parseTransactionsInFolder("storage/transactions/bitstamp/", Exchange.BITSTAMP);
 		Transactions.getInstance().getTransactionList().addAll(list);
+		
 		list = parseTransactionsInFolder("storage/transactions/kraken/ledgers/", Exchange.KRAKEN);
 		Transactions.getInstance().getTransactionList().addAll(list);
+		
 		list = parseTransactionsInFolder("storage/transactions/kraken/trades/", Exchange.KRAKEN);
 		Transactions.getInstance().getTransactionList().addAll(list);
+		
+		list = parseTransactionsInFolder("storage/transactions/binance/deposits/", Exchange.BINANCE);
+		Transactions.getInstance().getTransactionList().addAll(list);
+		
+		list = parseTransactionsInFolder("storage/transactions/binance/trades/", Exchange.BINANCE);
+		Transactions.getInstance().getTransactionList().addAll(list);
+		
+		//list = parseTransactionsInFolder("storage/transactions/binance/orders/", Exchange.BINANCE);
+		//Transactions.getInstance().getTransactionList().addAll(list);
 		
 		return "triggered - count: " + Transactions.getInstance().getTransactionList().size();
 	}
@@ -81,7 +96,14 @@ public class TransactionsController {
 								KrakenLedgerTransactionsCsvReader.read(fileEntry.getAbsolutePath()):
 								KrakenTradeTransactionsCsvReader.read(fileEntry.getAbsolutePath()); 
 						break;
-					case "BINANCE": transactions = BinanceTransactionsCsvReader.read(fileEntry.getAbsolutePath()); break;
+					case "BINANCE": 
+						if (folder.endsWith("trades/")) {
+							transactions = BinanceTradeTransactionsCsvReader.read(fileEntry.getAbsolutePath());
+						} else if (folder.endsWith("deposits/")) {
+							transactions = BinanceDepositTransactionsCsvReader.read(fileEntry.getAbsolutePath());
+						} else if (folder.endsWith("orders/")) {
+							//transactions = BinanceOrderTransactionsCsvReader.read(fileEntry.getAbsolutePath());
+						}
 				}
 			}
 			if (transactions != null) {
@@ -162,6 +184,86 @@ public class TransactionsController {
 		map.put("kraken-transactions-count", (double) krakenTransactionCount);
 		map.put("binance-transactions-count", (double) binanceTransactionCount);
 		
+		return map;
+	}
+	
+	@RequestMapping(path = "/{markettype}/{year}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE) 
+	public @ResponseBody Map<String, Object> listTransactionsForAYear(
+			@PathVariable("markettype") String marketType,
+			@PathVariable("year") int year, 
+			@RequestParam(value = "is-tax-year", required = false) Boolean isTaxYear) {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		Predicate<Transaction> predicateTaxYear = null;
+		if (isTaxYear != null && isTaxYear) {
+			LocalDateTime startTaxYearDate = LocalDateTime.parse((year-1)+"-04-06T00:00:00"); // > 04-06
+			LocalDateTime endTaxYearDate = LocalDateTime.parse(year+"-04-05T24:00:00"); // < 04-06
+			
+			predicateTaxYear = t -> t.getDateTime().isAfter(startTaxYearDate) && t.getDateTime().isBefore(endTaxYearDate);
+		} else {
+			LocalDateTime startTaxYearDate = LocalDateTime.parse((year-1)+"-01-01T00:00:00"); // > 04-06
+			LocalDateTime endTaxYearDate = LocalDateTime.parse(year+"-01-01T00:00:00"); // < 04-06
+			
+			predicateTaxYear = t -> t.getDateTime().isAfter(startTaxYearDate) && t.getDateTime().isBefore(endTaxYearDate);
+		}
+		Predicate<Transaction> predicateMarketType = null;
+		if ("ALL".equals(marketType.toUpperCase())) {
+			predicateMarketType = t -> true;
+		} else if ("DEPOSIT".equals(marketType.toUpperCase())){
+			predicateMarketType = t -> t.getMarketType().equals("DEPOSIT");
+		}
+		List<Transaction> transactionListFiltered = Transactions.getInstance().getTransactionList()
+				.stream().filter(predicateTaxYear)
+				.filter(predicateMarketType)
+				.sorted(Comparator.comparing(Transaction::getDateTime))
+				.collect(Collectors.toList());				
+		
+		map.put("transactions", transactionListFiltered);
+		
+		return map;
+	}
+	
+	@RequestMapping(path = "/{asset}/{year}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE) 
+	public @ResponseBody Map<String, Object> listAssetTransactionsForAYear(
+			@PathVariable("asset") String asset,
+			@PathVariable("year") int year, 
+			@RequestParam(value = "is-tax-year", required = false) Boolean isTaxYear) {
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		Predicate<Transaction> predicateTaxYear = null;
+		if (isTaxYear != null && isTaxYear) {
+			LocalDateTime startTaxYearDate = LocalDateTime.parse((year-1)+"-04-06T00:00:00"); // > 04-06
+			LocalDateTime endTaxYearDate = LocalDateTime.parse(year+"-04-05T24:00:00"); // < 04-06
+			
+			predicateTaxYear = t -> t.getDateTime().isAfter(startTaxYearDate) && t.getDateTime().isBefore(endTaxYearDate);
+		} else {
+			LocalDateTime startTaxYearDate = LocalDateTime.parse((year-1)+"-01-01T00:00:00"); // > 04-06
+			LocalDateTime endTaxYearDate = LocalDateTime.parse(year+"-01-01T00:00:00"); // < 04-06
+			
+			predicateTaxYear = t -> t.getDateTime().isAfter(startTaxYearDate) && t.getDateTime().isBefore(endTaxYearDate);
+		}
+		Predicate<Transaction> predicateAsset = t -> t.getAmount().getCurrency().name().equals(asset.toUpperCase());
+		
+		List<Transaction> transactionListFiltered = Transactions.getInstance().getTransactionList()
+			.stream().filter(predicateTaxYear)
+			.filter(predicateAsset)
+			.sorted(Comparator.comparing(Transaction::getDateTime))
+			.collect(Collectors.toList());				
+		
+		map.put("transactions", transactionListFiltered);
+		
+		// collect the quantity of buys and sells
+		Predicate<Transaction> predicateBuy = t -> t.getOrderType().equals("BUY");
+		Predicate<Transaction> predicateSell = t -> t.getOrderType().equals("SELL");
+		List<AmountCurrency> buyPrices = transactionListFiltered.stream().filter(predicateBuy).map(Transaction::getRate).collect(Collectors.toList());
+		List<AmountCurrency> buyQuantities = transactionListFiltered.stream().filter(predicateBuy).map(Transaction::getAmount).collect(Collectors.toList());
+		List<AmountCurrency> sellPrices = transactionListFiltered.stream().filter(predicateSell).map(Transaction::getRate).collect(Collectors.toList());
+		List<AmountCurrency> sellQuantities = transactionListFiltered.stream().filter(predicateSell).map(Transaction::getAmount).collect(Collectors.toList());
+		
+		map.put(asset+"-buy-prices", buyPrices);
+		map.put(asset+"-buy-quantities", buyQuantities);
+		map.put(asset+"-set-prices", sellPrices);
+		map.put(asset+"-sell-quantities", sellQuantities);
 		return map;
 	}
 }
