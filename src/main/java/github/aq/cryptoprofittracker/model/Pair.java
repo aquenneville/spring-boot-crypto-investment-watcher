@@ -1,6 +1,7 @@
 package github.aq.cryptoprofittracker.model;
 
-public enum AssetPair {
+public enum Pair {
+    
 	BTCUSD,
 	BTCUSDT,
 	ETHUSD,

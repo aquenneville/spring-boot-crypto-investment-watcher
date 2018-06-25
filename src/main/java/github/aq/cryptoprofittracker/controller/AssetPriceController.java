@@ -6,10 +6,10 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
-import github.aq.cryptoprofittracker.model.AssetPair;
+import github.aq.cryptoprofittracker.model.Pair;
 import github.aq.cryptoprofittracker.model.AssetPortfolio;
 import github.aq.cryptoprofittracker.model.Exchange;
-import github.aq.cryptoprofittracker.model.ExchangeAssetPairs;
+import github.aq.cryptoprofittracker.model.ExchangePairs;
 
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class AssetPriceController {
 
 	 @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	 public @ResponseBody AssetPortfolio.AssetPairPrices listAssetPairPrices() {
+	 public @ResponseBody AssetPortfolio.PairPrices listAssetPairPrices() {
 		 return AssetPortfolio.getAssetPrices();
 	 }
 	
@@ -37,8 +37,8 @@ public class AssetPriceController {
     	int pricesFetchedCount = 0;
         if (AssetPortfolio.getLastPriceUpdate() == null) {
         	
-        	for (ExchangeAssetPairs exchange: AssetPortfolio.getBalances().getAssetPortfolios()) {
-        		for (AssetPair assetPair: exchange.getAssetPairs().keySet()) {
+        	for (ExchangePairs exchange: AssetPortfolio.getBalances().getAssetPortfolios()) {
+        		for (Pair assetPair: exchange.getPairs().keySet()) {
         			CryptowatchResponseCurrentPrice resp = callCryptowatchAssetPairCurrentPrice(exchange.getExchange(), assetPair);
         			AssetPortfolio.getAssetPrices().addPrice(exchange.getExchange(), assetPair, resp.getResult().getPrice());
         			pricesFetchedCount ++;
@@ -49,7 +49,7 @@ public class AssetPriceController {
         return "Done - prices fetched count: " + pricesFetchedCount;
     }
     
-    public CryptowatchResponseCurrentPrice callCryptowatchAssetPairCurrentPrice(Exchange exchange, AssetPair assetPair) {
+    public CryptowatchResponseCurrentPrice callCryptowatchAssetPairCurrentPrice(Exchange exchange, Pair assetPair) {
         String uri = "https://api.cryptowat.ch/markets/"+exchange.name().toLowerCase()+"/"+assetPair.name().toLowerCase()+"/price";
         URL url = null;
         try {

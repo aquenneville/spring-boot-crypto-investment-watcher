@@ -2,9 +2,6 @@ package github.aq.cryptoprofittracker.model;
 
 import java.time.LocalDateTime;
 
-/**
- *
- */
 public class Transaction {
 	
 	public Transaction() {
@@ -12,7 +9,32 @@ public class Transaction {
 	}
 	
 	public enum Currency {
-		BTC, USD, EUR, XRP, ETH, LTC, GBP, STR, BCH, EOS, XMR;  
+		USD(Boolean.TRUE), 
+		EUR(Boolean.TRUE),
+		GBP(Boolean.TRUE),
+		BTC(Boolean.FALSE), 
+		XRP(Boolean.FALSE), 
+		ETH(Boolean.FALSE), 
+		LTC(Boolean.FALSE),  
+		STR(Boolean.FALSE), 
+		BCH(Boolean.FALSE), 
+		EOS(Boolean.FALSE), 
+		XMR(Boolean.FALSE), 
+		ETC(Boolean.FALSE),
+		NEO(Boolean.FALSE),
+		ONT(Boolean.FALSE),
+		XVG(Boolean.FALSE),
+		TRX(Boolean.FALSE);  
+		
+		Boolean isFiat;
+		
+		Currency(Boolean isFiat) {
+		    this.isFiat = isFiat;
+		}
+		
+		public boolean isFiat() {
+		    return isFiat; 
+		}
 	}
 	
 	public enum OrderType {
@@ -34,6 +56,8 @@ public class Transaction {
 				case "BTC": this.currency = Currency.BTC; break;
 				case "USD": this.currency = Currency.USD; break;
 				case "EUR": this.currency = Currency.EUR; break;
+				case "ETH": this.currency = Currency.ETH; break;
+				case "BCH": this.currency = Currency.BCH; break;
 			}
 		}
 					
@@ -49,7 +73,7 @@ public class Transaction {
 	
 	private Exchange exchange;
 	private String marketType; 
-	private LocalDateTime dateTime; // bitstamp format = MMM. DD, YYYY, HH:mm PM/AM
+	private LocalDateTime dateTime; 
 	private String accountId;
 	private AmountCurrency amount;
 	private AmountCurrency value;
@@ -59,7 +83,7 @@ public class Transaction {
 	private long id;
 	private String websiteTxId;
 	private String websiteTxRefId;
-
+	
 	public String getMarketType() {
 		return marketType;
 	}

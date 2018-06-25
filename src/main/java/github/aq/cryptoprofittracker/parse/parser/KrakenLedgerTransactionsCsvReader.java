@@ -29,7 +29,11 @@ public class KrakenLedgerTransactionsCsvReader {
 				String txRefId = record.get("refid");
 				tran.setWebsiteTxRefId(txRefId);
 				
+<<<<<<< HEAD
 				DateTimeFormatter dTF = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"); //24 hr YYYY-MM-DD HH:mm:ss
+=======
+				DateTimeFormatter dTF = DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss"); //24 hr YYYY-MM-DD HH:mm:ss
+>>>>>>> 63eb0f2f56a53fc2189559e9d258d19d2f4a4964
 				String dateTimeValue = record.get("time");
 				LocalDateTime ldt = LocalDateTime.parse(dateTimeValue, dTF);
 				tran.setDateTime(ldt);
