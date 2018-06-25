@@ -1,6 +1,7 @@
 package github.aq.cryptoprofittracker.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AssetPortfolio {
@@ -10,6 +11,9 @@ public class AssetPortfolio {
 	static LocalDate lastPriceUpdate;
 	
 	public static Balances getBalances() {
+	    if (balances == null) {
+	        balances = new AssetPortfolio.Balances();
+	    }
 		return balances;
 	}
 	
@@ -25,35 +29,49 @@ public class AssetPortfolio {
 		lastPriceUpdate = LocalDate.now();
 	}
 	
-	public class Balances {
+	public static class Balances {
 
 		List<ExchangePairs> assetBalances;
+		
+		public Balances() {
+		    assetBalances = new ArrayList<ExchangePairs>();
+		}
 		
 		public List<ExchangePairs> getAssetPortfolios() {
 			return assetBalances;
 		}
 		
-		public void addQuantity(Exchange exchange, Pair assetPair, double quantity) {
+		public void addBalance(Exchange exchange, Pair assetPair, double quantity) {
 	        int i = 0;
 	        boolean addedAssetPairPrice = false;
-	        for (ExchangePairs exchangeAssetPairs: assetBalances) {
-	            if (exchange.equals(exchangeAssetPairs.getExchange())) {
-	                ExchangePairs eap = assetBalances.get(i);
-	                eap.addQuantity(assetPair, quantity);
-	                addedAssetPairPrice = true;
-	                break;
-	            } 
-	        }
-	        if (addedAssetPairPrice) {
+	        if (assetBalances.size() == 0) {
 	            ExchangePairs eap = new ExchangePairs();
-	            eap.addQuantity(assetPair, quantity);
-	            assetBalances.add(eap);
+                eap.addQuantity(assetPair, quantity);
+                assetBalances.add(eap);
+	        } else {
+    	        for (ExchangePairs exchangeAssetPairs: assetBalances) {
+    	            if (exchange.equals(exchangeAssetPairs.getExchange())) {
+    	                ExchangePairs eap = assetBalances.get(i);
+    	                eap.addQuantity(assetPair, quantity);
+    	                addedAssetPairPrice = true;
+    	                break;
+    	            } 
+    	        }
+    	        
+    	        if (addedAssetPairPrice) {
+    	            ExchangePairs eap = new ExchangePairs();
+    	            eap.addQuantity(assetPair, quantity);
+    	            assetBalances.add(eap);
+    	        }
 	        }
 	    }
 	    
-	    public double getQuantity(Exchange exchange, Pair assetPair) {
+	    public double getBalance(Exchange exchange, Pair assetPair) {
 	        int i = 0;
-	        double quantity = 0;
+	        double balance = 0;
+	        if (assetBalances == null) {
+                assetBalances = new ArrayList<ExchangePairs>();
+            }
 	        for (ExchangePairs exchangeAssetPairs: assetBalances) {
 	            if (exchange.equals(exchangeAssetPairs.getExchange())) {
 	                ExchangePairs eap = assetBalances.get(i);
@@ -62,7 +80,7 @@ public class AssetPortfolio {
 	                }  
 	            } 
 	        }
-	        return quantity;
+	        return balance;
 	    }
 	}
 	

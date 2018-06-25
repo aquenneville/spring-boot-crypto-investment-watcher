@@ -1,11 +1,16 @@
 package github.aq.cryptoprofittracker.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class ExchangePairs {
 
     Exchange exchange;
     Map<Pair, Double> pairs;
+
+    public ExchangePairs() {
+        pairs = new HashMap<Pair, Double>();
+    }
     
     public Exchange getExchange() {
         return exchange;
