@@ -1,11 +1,6 @@
 package github.aq.cryptoprofittracker.controller;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -21,10 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import github.aq.cryptoprofittracker.model.Pair;
 import github.aq.cryptoprofittracker.model.AssetPortfolio;
@@ -54,8 +45,6 @@ public class TransactionsController {
 	// profits by exchange
 	// profits by currency
 	// profits by year by exchange
-	//@RequestMapping(path = "/{saleId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE) 
-	//public @ResponseBody Sale getById(@PathVariable Long saleId) {
 	
 	// TODO: rewrite the try-catch
 	@RequestMapping(path = "/parse", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -114,19 +103,15 @@ public class TransactionsController {
 	}
 	
 	
-	// deposits
 	@RequestMapping(path = "/stats", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE) 
 	public @ResponseBody Map<String, Double> computeProfit(@RequestParam(value = "tax-year", required = false) Integer paramTaxYear) { 
 		
 		Map<String, Double> map = new HashMap<String, Double>();
 		double btcQty = 0;
-		//double depositSum = 0;
 		// filter out period: 2016-2017
 		// filter out assets: btc, eth
 		double fees = 0;
-//		int depositCount = 0;
-//		int sellOrderCount = 0;
-//		int buyOrderCount = 0;
+
 		
 		
 		
@@ -159,7 +144,6 @@ public class TransactionsController {
 		long krakenTransactionCount = transactionListFiltered.stream().filter(predicteKrakenTransaction).count();
 		long binanceTransactionCount = transactionListFiltered.stream().filter(predicteBinanceTransaction).count();
 		double depositSum = transactionListFiltered.stream().filter(predicteDeposit).mapToDouble(t -> t.getAmount().getAmount()).sum();
-		//btcQty = buyOrderCount - sellOrderCount;
 		
 		for (Transaction t: transactionListFiltered) {
 			if ("BUY".equals(t.getOrderType()) && Currency.BTC == t.getAmount().getCurrency()) {
