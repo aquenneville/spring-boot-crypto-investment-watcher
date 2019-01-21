@@ -1,8 +1,8 @@
-package github.aq.cryptoprofittracker.controller;
+package github.aq.cryptoprofittracker.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class CryptowatchResponseCurrentPrice {
+public class CryptowatchResponseCurrentPriceDto {
 
 	private Result result;
 	private Allowance allowance;
@@ -56,7 +56,7 @@ public class CryptowatchResponseCurrentPrice {
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		ObjectMapper mapper = new ObjectMapper();		
-		CryptowatchResponseCurrentPrice resp = new CryptowatchResponseCurrentPrice();
+		CryptowatchResponseCurrentPriceDto resp = new CryptowatchResponseCurrentPriceDto();
 		Result result = new Result();
 		result.setPrice(6463.99);
 		Allowance allowance = new Allowance();

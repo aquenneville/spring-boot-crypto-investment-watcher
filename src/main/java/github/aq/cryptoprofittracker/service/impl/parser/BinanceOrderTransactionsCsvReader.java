@@ -1,4 +1,4 @@
-package github.aq.cryptoprofittracker.parse.parser;
+package github.aq.cryptoprofittracker.service.impl.parser;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package github.aq.cryptoprofittracker.controller;
+package github.aq.cryptoprofittracker.web;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,19 +27,18 @@ import github.aq.cryptoprofittracker.model.Transactions;
 import github.aq.cryptoprofittracker.model.Exchange;
 import github.aq.cryptoprofittracker.model.Transaction.AmountCurrency;
 import github.aq.cryptoprofittracker.model.Transaction.Currency;
-import github.aq.cryptoprofittracker.parse.parser.BinanceDepositTransactionsCsvReader;
-import github.aq.cryptoprofittracker.parse.parser.BinanceOrderTransactionsCsvReader;
-import github.aq.cryptoprofittracker.parse.parser.BinanceTradeTransactionsCsvReader;
-import github.aq.cryptoprofittracker.parse.parser.BitstampTransactionsCsvReader;
-import github.aq.cryptoprofittracker.parse.parser.KrakenLedgerTransactionsCsvReader;
-import github.aq.cryptoprofittracker.parse.parser.KrakenTradeTransactionsCsvReader;
+import github.aq.cryptoprofittracker.service.impl.parser.BinanceDepositTransactionsCsvReader;
+import github.aq.cryptoprofittracker.service.impl.parser.BinanceTradeTransactionsCsvReader;
+import github.aq.cryptoprofittracker.service.impl.parser.BitstampTransactionsCsvReader;
+import github.aq.cryptoprofittracker.service.impl.parser.KrakenLedgerTransactionsCsvReader;
+import github.aq.cryptoprofittracker.service.impl.parser.KrakenTradeTransactionsCsvReader;
 
 @RestController
 @RequestMapping("/api/v1/transactions")
-public class TransactionsController {
+public class TransactionsResource {
 
 	@RequestMapping(path = "/parse/{exchange}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody String parseTransactionsByExchange(@PathVariable("exchange") String exchange) throws Exception {
+	public ResponseEntity<String> parseTransactionsByExchange(@PathVariable("exchange") String exchange) throws Exception {
 		Transactions.getInstance().getTransactionList().clear();
 		exchange = exchange.toUpperCase();
 		switch(exchange) {
@@ -65,7 +66,7 @@ public class TransactionsController {
 		//Transactions.getInstance().getTransactionList().addAll(list);
 		break;
 		}
-		return "triggered - count: " + Transactions.getInstance().getTransactionList().size();
+		return new ResponseEntity<> ("triggered - count: " + Transactions.getInstance().getTransactionList().size(), HttpStatus.OK);
 		
 	}
 	// /api/v1/parse/transactions
@@ -81,7 +82,7 @@ public class TransactionsController {
 	
 	// TODO: rewrite the try-catch
 	@RequestMapping(path = "/parse", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody String parseAll() throws Exception{
+	public ResponseEntity<String> parseAll() throws Exception{
 		Transactions.getInstance().getTransactionList().clear();
 		
 		List<Transaction> list = parseTransactionsInFolder("storage/transactions/bitstamp/", Exchange.BITSTAMP);
@@ -102,7 +103,7 @@ public class TransactionsController {
 		//list = parseTransactionsInFolder("storage/transactions/binance/orders/", Exchange.BINANCE);
 		//Transactions.getInstance().getTransactionList().addAll(list);
 		
-		return "triggered - count: " + Transactions.getInstance().getTransactionList().size();
+		return new ResponseEntity<>("triggered - count: " + Transactions.getInstance().getTransactionList().size(), HttpStatus.OK);
 	}
 	
 	public List<Transaction> parseTransactionsInFolder(final String folder, Exchange website) {		
@@ -139,7 +140,7 @@ public class TransactionsController {
 	
 	
 	@RequestMapping(path = "/stats", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE) 
-	public @ResponseBody Map<String, Double> computeProfit(@RequestParam(value = "tax-year", required = false) Integer paramTaxYear) { 
+	public ResponseEntity<Map<String, Double>> computeProfit(@RequestParam(value = "tax-year", required = false) Integer paramTaxYear) {
 		
 		Map<String, Double> map = new HashMap<String, Double>();
 		double btcBalance = 0;
@@ -159,7 +160,7 @@ public class TransactionsController {
 		
 		List<Transaction> transactionListFiltered = Transactions.getInstance().getTransactionList()
 				.stream().filter(predicateTaxYear)
-				.sorted(Comparator.comparing(Transaction::getDateTime))
+				.sorted(Comparator.comparing(Transaction::getDateTime, Comparator.nullsLast(Comparator.reverseOrder())))
 				.collect(Collectors.toList());				
 		
 		Predicate<Transaction> predicteBuyOrder = t ->  "BUY".equals(t.getOrderType());
@@ -207,11 +208,11 @@ public class TransactionsController {
             }
         }
         map.put("profits", profits);
-		return map;
+		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 	
 	@RequestMapping(path = "/{markettype}/{year}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE) 
-	public @ResponseBody Map<String, Object> listTransactionsForAYear(
+	public ResponseEntity<Map<String, Object>> listTransactionsForAYear(
 			@PathVariable("markettype") String marketType,
 			@PathVariable("year") int year, 
 			@RequestParam(value = "is-tax-year", required = false) Boolean isTaxYear) {
@@ -243,11 +244,11 @@ public class TransactionsController {
 		
 		map.put("transactions", transactionListFiltered);
 		
-		return map;
+		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 	
 	@RequestMapping(path = "/{asset}/{year}/", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE) 
-	public @ResponseBody Map<String, Object> listAssetTransactionsForAYear(
+	public ResponseEntity<Map<String, Object>> listAssetTransactionsForAYear(
 			@PathVariable("asset") String asset,
 			@PathVariable("year") int year, 
 			@RequestParam(value = "is-tax-year", required = false) Boolean isTaxYear) {
@@ -297,7 +298,7 @@ public class TransactionsController {
 		    }
 		}
 		map.put("profits", profits);
-		return map;
+		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 }
 
